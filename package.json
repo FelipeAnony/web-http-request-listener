@@ -1,0 +1,25 @@
+{
+  "name": "web-http-request-listener",
+  "version": "1.0.0",
+  "description": "A lightweight and efficient HTTP request interceptor for web applications, designed for scenarios where Service Workers are not an option.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "HTTP interceptor",
+    "fetch interceptor",
+    "XHR interceptor",
+    "request interceptor",
+    "response interceptor",
+    "network monitoring",
+    "web app utilities",
+    "JavaScript networking"
+  ],
+  "author": "Felipe Oliveira Gomes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FelipeAnony/web-http-request-listener"
+  }
+}
