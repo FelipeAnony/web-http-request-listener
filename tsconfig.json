@@ -1,16 +1,17 @@
 {
-  "compilerOptions": {
-    "target": "ES5",
-    "module": "commonjs",
-    "baseUrl": "./src",
-    "paths": {
-      "@/*": ["*"]
-    },
-    "declaration": true,
-    "outDir": "./dist",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true
-  }
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "commonjs",
+        "baseUrl": "./src",
+        "paths": {
+            "@/*": ["*"]
+        },
+        "declaration": true,
+        "outDir": "./dist",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "lib": ["ES2020", "DOM"]
+    }
 }

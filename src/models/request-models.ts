@@ -1,11 +1,14 @@
 export interface RequestModel {
     url: string
     method: string
-    body?: unknown
+    body?: BodyInit | null
+    headers?: HeadersInit
+    xhrInstance?: typeof XMLHttpRequest.prototype
 }
 
 export interface ResponseModel {
-    data: unknown
+    rawResponse: Response
+    responseParsed?: unknown
     statusCode: number
     statusText: string
 }
