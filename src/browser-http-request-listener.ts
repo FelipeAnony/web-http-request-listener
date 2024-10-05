@@ -18,7 +18,7 @@ export class BrowserHttpRequestListener {
     private static fetchDecorator: typeof window.fetch = async function (
         ...args
     ) {
-        const method = args[1]?.method || 'GET'
+        const method = args[1]?.method || 'get'
         const headers = args[1]?.headers || {}
         const body = args[1]?.body
         const url =
@@ -41,6 +41,7 @@ export class BrowserHttpRequestListener {
                         method,
                         url,
                         body,
+                        headers,
                     })
 
                     if (newRequestData) {
@@ -74,7 +75,7 @@ export class BrowserHttpRequestListener {
                             },
                         })
                     })
-            })
+            }, 0)
         } catch (error) {
             console.error('Error during onResponse callbacks:', error)
         }
