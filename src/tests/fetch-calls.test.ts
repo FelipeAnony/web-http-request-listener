@@ -1,13 +1,13 @@
 import { BrowserHttpRequestListener } from '@/browser-http-request-listener'
 import { RequestModel, RequestResponseModel, ResponseModel } from '@/models'
 import jsonDb from './db.json'
-import { waitFor } from './utils'
 
 const jsonServerApiEndpoint = 'http://localhost:3000/posts'
 
 describe('browser-http-request-listener', () => {
     afterAll(() => {
         BrowserHttpRequestListener.stop()
+        BrowserHttpRequestListener.clearSubscribers()
     })
 
     it('Should not listen for calls untill start method is called', async () => {
@@ -20,7 +20,6 @@ describe('browser-http-request-listener', () => {
 
         BrowserHttpRequestListener.start()
         await fetch(jsonServerApiEndpoint)
-        await waitFor(10)
 
         expect(callback).toHaveBeenCalledTimes(2)
     })
@@ -32,7 +31,6 @@ describe('browser-http-request-listener', () => {
         BrowserHttpRequestListener.start()
 
         await fetch(jsonServerApiEndpoint)
-        await waitFor(10)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
@@ -40,6 +38,29 @@ describe('browser-http-request-listener', () => {
 
         await fetch(jsonServerApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('Should unsubscribe the beforeSend callbacks appropiately', async () => {
+        const callback = jest.fn()
+        const callback2 = jest.fn()
+
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.beforeSendHttpRequest(callback)
+
+        const unsubscribe =
+            BrowserHttpRequestListener.beforeSendHttpRequest(callback2)
+
+        await fetch(jsonServerApiEndpoint)
+
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(callback2).toHaveBeenCalledTimes(1)
+
+        unsubscribe()
+
+        await fetch(jsonServerApiEndpoint)
+
+        expect(callback).toHaveBeenCalledTimes(2)
+        expect(callback2).toHaveBeenCalledTimes(1)
     })
 
     it('Should calls all the subscribed callbacks before the actual fetch calls', async () => {
@@ -87,6 +108,24 @@ describe('browser-http-request-listener', () => {
         expect(res.url).toBe(jsonServerApiEndpoint)
     })
 
+    it('Should unsubscribe the afterArrives callbacks appropiately', async () => {
+        const callback = jest.fn()
+        const callback2 = jest.fn()
+
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.onHttpResponseArrives(callback)
+
+        const unsubscribe =
+            BrowserHttpRequestListener.onHttpResponseArrives(callback2)
+
+        await fetch(jsonServerApiEndpoint)
+        unsubscribe()
+        await fetch(jsonServerApiEndpoint)
+
+        expect(callback).toHaveBeenCalledTimes(2)
+        expect(callback2).toHaveBeenCalledTimes(1)
+    })
+
     it('Should calls all the subscribed callbacks when response arrives', async () => {
         const callbacks = [
             jest.fn(),
@@ -102,6 +141,7 @@ describe('browser-http-request-listener', () => {
         })
 
         await fetch(jsonServerApiEndpoint)
+
         callbacks.forEach((cb) => {
             expect(cb).toHaveBeenCalled()
         })
@@ -125,7 +165,6 @@ describe('browser-http-request-listener', () => {
                 Authorization: 'any-auth',
             },
         })
-        await waitFor(10)
 
         expect(response.responseParsed).toEqual(jsonDb.posts)
         expect(response.statusCode).toBe(200)

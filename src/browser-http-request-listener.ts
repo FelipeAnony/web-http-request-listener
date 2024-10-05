@@ -34,20 +34,18 @@ export class BrowserHttpRequestListener {
         }
 
         try {
-            BrowserHttpRequestListener.beforeSendCallbacks
-                .slice()
-                .forEach((cb) => {
-                    const newRequestData = cb({
-                        method,
-                        url,
-                        body,
-                        headers,
-                    })
-
-                    if (newRequestData) {
-                        Object.assign(request, newRequestData)
-                    }
+            BrowserHttpRequestListener.beforeSendCallbacks.forEach((cb) => {
+                const newRequestData = cb({
+                    method,
+                    url,
+                    body,
+                    headers,
                 })
+
+                if (newRequestData) {
+                    Object.assign(request, newRequestData)
+                }
+            })
         } catch (error) {
             console.error('Error during beforeSend callbacks:', error)
         }
@@ -61,21 +59,19 @@ export class BrowserHttpRequestListener {
             const clonedResponse = response.clone()
             const responseParsed = await clonedResponse.json()
 
-            setTimeout(() => {
-                BrowserHttpRequestListener.onResponseArriveCallbacks
-                    .slice()
-                    .forEach((cb) => {
-                        cb({
-                            request,
-                            response: {
-                                rawResponse: clonedResponse,
-                                responseParsed,
-                                statusCode: clonedResponse.status,
-                                statusText: clonedResponse.statusText,
-                            },
-                        })
+            BrowserHttpRequestListener.onResponseArriveCallbacks.forEach(
+                (cb) => {
+                    cb({
+                        request,
+                        response: {
+                            rawResponse: clonedResponse,
+                            responseParsed,
+                            statusCode: clonedResponse.status,
+                            statusText: clonedResponse.statusText,
+                        },
                     })
-            }, 0)
+                }
+            )
         } catch (error) {
             console.error('Error during onResponse callbacks:', error)
         }
@@ -98,31 +94,28 @@ export class BrowserHttpRequestListener {
             }
 
             try {
-                BrowserHttpRequestListener.beforeSendCallbacks
-                    .slice()
-                    .forEach((cb) => {
-                        const newRequestData = cb({
-                            method,
-                            url: String(url),
-                            xhrInstance: this,
-                        })
-
-                        if (newRequestData) {
-                            Object.assign(request, {
-                                url: newRequestData.url || url,
-                                method: newRequestData.method || method,
-                            })
-                        }
+                BrowserHttpRequestListener.beforeSendCallbacks.forEach((cb) => {
+                    const newRequestData = cb({
+                        method,
+                        url: String(url),
+                        xhrInstance: this,
                     })
+
+                    if (newRequestData) {
+                        Object.assign(request, {
+                            url: newRequestData.url || url,
+                            method: newRequestData.method || method,
+                        })
+                    }
+                })
             } catch (error) {
                 console.error('Error during beforeSend callbacks:', error)
             }
 
             this.addEventListener('load', function () {
                 try {
-                    BrowserHttpRequestListener.onResponseArriveCallbacks
-                        .slice()
-                        .forEach((cb) => {
+                    BrowserHttpRequestListener.onResponseArriveCallbacks.forEach(
+                        (cb) => {
                             cb({
                                 request,
                                 response: {
@@ -134,7 +127,8 @@ export class BrowserHttpRequestListener {
                                     statusText: this.statusText,
                                 },
                             })
-                        })
+                        }
+                    )
                 } catch (error) {
                     console.error('Error during onResponse callbacks:', error)
                 }
@@ -142,9 +136,8 @@ export class BrowserHttpRequestListener {
 
             this.addEventListener('error', function () {
                 try {
-                    BrowserHttpRequestListener.onResponseArriveCallbacks
-                        .slice()
-                        .forEach((cb) => {
+                    BrowserHttpRequestListener.onResponseArriveCallbacks.forEach(
+                        (cb) => {
                             cb({
                                 request,
                                 response: {
@@ -156,7 +149,8 @@ export class BrowserHttpRequestListener {
                                     statusText: this.statusText,
                                 },
                             })
-                        })
+                        }
+                    )
                 } catch (error) {
                     console.error('Error during onResponse callbacks:', error)
                 }
@@ -207,11 +201,15 @@ export class BrowserHttpRequestListener {
                 )
 
             if (index === -1) return
-
             BrowserHttpRequestListener.onResponseArriveCallbacks.splice(
                 index,
                 1
             )
         }
+    }
+
+    static clearSubscribers() {
+        BrowserHttpRequestListener.beforeSendCallbacks.length = 0
+        BrowserHttpRequestListener.onResponseArriveCallbacks.length = 0
     }
 }
