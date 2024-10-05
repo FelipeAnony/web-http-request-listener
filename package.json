@@ -1,42 +1,42 @@
 {
-  "name": "web-http-request-listener",
-  "version": "1.0.0",
-  "description": "A lightweight and efficient HTTP request interceptor for web applications, designed for scenarios where Service Workers are not an option.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "lint:fix": "eslint --fix",
-    "format": "prettier --write",
-    "prepare": "husky"
-  },
-  "keywords": [
-    "HTTP interceptor",
-    "fetch interceptor",
-    "XHR interceptor",
-    "request interceptor",
-    "response interceptor",
-    "network monitoring",
-    "web app utilities",
-    "JavaScript networking"
-  ],
-  "author": "Felipe Oliveira Gomes",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/FelipeAnony/web-http-request-listener"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.12.0",
-    "@types/jest": "^29.5.13",
-    "eslint": "^9.12.0",
-    "globals": "^15.10.0",
-    "husky": "^9.1.6",
-    "jest": "^29.7.0",
-    "lint-staged": "^15.2.10",
-    "prettier": "3.3.3",
-    "ts-jest": "^29.2.5",
-    "typescript": "^5.6.2",
-    "typescript-eslint": "^8.8.0"
-  }
+    "name": "browser-http-request-listener",
+    "version": "1.0.0",
+    "description": "A lightweight and efficient HTTP request interceptor for the browser, designed for scenarios where Service Workers are not an option.",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "lint:fix": "eslint --fix",
+        "format": "prettier --write",
+        "prepare": "husky"
+    },
+    "keywords": [
+        "HTTP interceptor",
+        "fetch interceptor",
+        "XHR interceptor",
+        "request interceptor",
+        "response interceptor",
+        "network monitoring",
+        "web app utilities",
+        "JavaScript networking"
+    ],
+    "author": "Felipe Oliveira Gomes",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/FelipeAnony/web-http-request-listener"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.12.0",
+        "@types/jest": "^29.5.13",
+        "eslint": "^9.12.0",
+        "globals": "^15.10.0",
+        "husky": "^9.1.6",
+        "jest": "^29.7.0",
+        "lint-staged": "^15.2.10",
+        "prettier": "3.3.3",
+        "ts-jest": "^29.2.5",
+        "typescript": "^5.6.2",
+        "typescript-eslint": "^8.8.0"
+    }
 }

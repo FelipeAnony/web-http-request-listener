@@ -1,3 +1,3 @@
 export * from 'models'
 export * from 'protocols'
-export * from 'web-http-request-listener'
+export * from 'browser-http-request-listener'

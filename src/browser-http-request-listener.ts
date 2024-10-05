@@ -1,7 +1,7 @@
-import { RequestModel, RequestResponseModel } from './models'
-import { SubscriberCallback, Unsubscriber } from './protocols'
+import { RequestModel, RequestResponseModel } from '@/models'
+import { SubscriberCallback, Unsubscriber } from '@/protocols'
 
-export class WebHttpRequestListener {
+export class BrowserHttpRequestListener {
     private constructor() {}
 
     private static originalFetch = window.fetch
@@ -34,22 +34,24 @@ export class WebHttpRequestListener {
         }
 
         try {
-            WebHttpRequestListener.beforeSendCallbacks.slice().forEach((cb) => {
-                const newRequestData = cb({
-                    method,
-                    url,
-                    body,
-                })
+            BrowserHttpRequestListener.beforeSendCallbacks
+                .slice()
+                .forEach((cb) => {
+                    const newRequestData = cb({
+                        method,
+                        url,
+                        body,
+                    })
 
-                if (newRequestData) {
-                    Object.assign(request, newRequestData)
-                }
-            })
+                    if (newRequestData) {
+                        Object.assign(request, newRequestData)
+                    }
+                })
         } catch (error) {
             console.error('Error during beforeSend callbacks:', error)
         }
 
-        const response = await WebHttpRequestListener.originalFetch.apply(
+        const response = await BrowserHttpRequestListener.originalFetch.apply(
             window,
             [request.url, { ...(args[1] || {}), ...request }]
         )
@@ -59,7 +61,7 @@ export class WebHttpRequestListener {
             const responseParsed = await clonedResponse.json()
 
             setTimeout(() => {
-                WebHttpRequestListener.onResponseArriveCallbacks
+                BrowserHttpRequestListener.onResponseArriveCallbacks
                     .slice()
                     .forEach((cb) => {
                         cb({
@@ -95,7 +97,7 @@ export class WebHttpRequestListener {
             }
 
             try {
-                WebHttpRequestListener.beforeSendCallbacks
+                BrowserHttpRequestListener.beforeSendCallbacks
                     .slice()
                     .forEach((cb) => {
                         const newRequestData = cb({
@@ -117,7 +119,7 @@ export class WebHttpRequestListener {
 
             this.addEventListener('load', function () {
                 try {
-                    WebHttpRequestListener.onResponseArriveCallbacks
+                    BrowserHttpRequestListener.onResponseArriveCallbacks
                         .slice()
                         .forEach((cb) => {
                             cb({
@@ -139,7 +141,7 @@ export class WebHttpRequestListener {
 
             this.addEventListener('error', function () {
                 try {
-                    WebHttpRequestListener.onResponseArriveCallbacks
+                    BrowserHttpRequestListener.onResponseArriveCallbacks
                         .slice()
                         .forEach((cb) => {
                             cb({
@@ -159,7 +161,7 @@ export class WebHttpRequestListener {
                 }
             })
 
-            return WebHttpRequestListener.originalXHR.apply(this, [
+            return BrowserHttpRequestListener.originalXHR.apply(this, [
                 method,
                 url,
                 Boolean(async),
@@ -169,43 +171,46 @@ export class WebHttpRequestListener {
         }
 
     static start(): void {
-        window.fetch = WebHttpRequestListener.fetchDecorator
-        XMLHttpRequest.prototype.open = WebHttpRequestListener.xhrDecorator
+        window.fetch = BrowserHttpRequestListener.fetchDecorator
+        XMLHttpRequest.prototype.open = BrowserHttpRequestListener.xhrDecorator
     }
 
     static stop(): void {
-        window.fetch = WebHttpRequestListener.originalFetch
-        XMLHttpRequest.prototype.open = WebHttpRequestListener.originalXHR
+        window.fetch = BrowserHttpRequestListener.originalFetch
+        XMLHttpRequest.prototype.open = BrowserHttpRequestListener.originalXHR
     }
 
     static beforeSendHttpRequest(
         callback: SubscriberCallback<RequestModel, Partial<RequestModel> | void>
     ): Unsubscriber {
-        WebHttpRequestListener.beforeSendCallbacks.push(callback)
+        BrowserHttpRequestListener.beforeSendCallbacks.push(callback)
 
         return () => {
             const index =
-                WebHttpRequestListener.beforeSendCallbacks.indexOf(callback)
+                BrowserHttpRequestListener.beforeSendCallbacks.indexOf(callback)
 
             if (index === -1) return
-            WebHttpRequestListener.beforeSendCallbacks.splice(index, 1)
+            BrowserHttpRequestListener.beforeSendCallbacks.splice(index, 1)
         }
     }
 
     static onHttpResponseArrives(
         callback: SubscriberCallback<RequestResponseModel>
     ): Unsubscriber {
-        WebHttpRequestListener.onResponseArriveCallbacks.push(callback)
+        BrowserHttpRequestListener.onResponseArriveCallbacks.push(callback)
 
         return () => {
             const index =
-                WebHttpRequestListener.onResponseArriveCallbacks.indexOf(
+                BrowserHttpRequestListener.onResponseArriveCallbacks.indexOf(
                     callback
                 )
 
             if (index === -1) return
 
-            WebHttpRequestListener.onResponseArriveCallbacks.splice(index, 1)
+            BrowserHttpRequestListener.onResponseArriveCallbacks.splice(
+                index,
+                1
+            )
         }
     }
 }
