@@ -24,6 +24,10 @@
     "url": "https://github.com/FelipeAnony/web-http-request-listener"
   },
   "devDependencies": {
-    "typescript": "^5.6.2"
+    "@eslint/js": "^9.12.0",
+    "eslint": "^9.12.0",
+    "globals": "^15.10.0",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.8.0"
   }
 }
