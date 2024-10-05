@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "A lightweight and efficient HTTP request interceptor for web applications, designed for scenarios where Service Workers are not an option.",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "keywords": [
     "HTTP interceptor",
@@ -21,5 +22,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/FelipeAnony/web-http-request-listener"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2"
   }
 }
