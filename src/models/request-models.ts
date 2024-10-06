@@ -17,3 +17,9 @@ export interface RequestResponseModel {
     request: RequestModel
     response: ResponseModel
 }
+
+export interface XHRResponseModel {
+    response: XMLHttpRequest['response']
+    statusCode: number
+    statusText: string
+}
