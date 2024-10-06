@@ -212,6 +212,8 @@ export class BrowserHttpRequestListener {
      * will not restore the original behavior until the blockers are removed.
      *
      * Call this method to stop the interception of HTTP requests and return to the default browser behavior.
+     *
+     * @returns {boolean} Returns true if the listener was successfully stopped and original behavior restored, or false if the operation failed due to active blockers.
      */
     static stop(): boolean {
         const isBlocked = BrowserHttpRequestListener.blockers.length
@@ -279,8 +281,10 @@ export class BrowserHttpRequestListener {
      * Clears all registered before-send and response-arrival callbacks.
      *
      * This method will remove all subscribers for both before-send and response-arrival events.
+     *
+     * @returns {boolean} Returns true if the subscribers were cleared successfully, or false if the operation failed due to active blockers.
      */
-    static clearSubscribers() {
+    static clearSubscribers(): boolean {
         const isBlocked = BrowserHttpRequestListener.blockers.length
         if (isBlocked) return false
 
