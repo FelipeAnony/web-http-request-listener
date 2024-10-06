@@ -1,5 +1,5 @@
 import { RequestModel, RequestResponseModel, XHRResponseModel } from '@/models'
-import { SubscriberCallback, Unsubscriber } from '@/protocols'
+import { SubscriberCallback, Unblocker, Unsubscriber } from '@/protocols'
 import { GetFnParams, isFetchResponse } from './utils'
 
 export class BrowserHttpRequestListener {
@@ -14,9 +14,6 @@ export class BrowserHttpRequestListener {
     > = []
 
     private static blockers: symbol[] = []
-    private static isBlocked = Boolean(
-        BrowserHttpRequestListener.blockers.length
-    )
 
     private static originalFetch = window.fetch
     private static originalXHR = XMLHttpRequest.prototype.open
@@ -181,15 +178,15 @@ export class BrowserHttpRequestListener {
      * of `fetch` and `XMLHttpRequest`. This can be useful for ensuring that the listener
      * remains active during critical operations.
      *
-     * @returns {Unsubscriber} A function to remove the blocker and allow the listener to be stopped.
+     * @returns {Unblocker} A function to remove the blocker and allow the listener to be stopped.
      */
-    static blockListeningState(): Unsubscriber {
-        const blockSymbol = Symbol()
+    static blockListeningState(): Unblocker {
+        const blockSymbol = Symbol('Blocker')
         BrowserHttpRequestListener.blockers.push(blockSymbol)
 
         return () => {
             BrowserHttpRequestListener.blockers.splice(
-                BrowserHttpRequestListener.blockers.indexOf(blockSymbol) - 1,
+                BrowserHttpRequestListener.blockers.indexOf(blockSymbol),
                 1
             )
         }
@@ -216,10 +213,14 @@ export class BrowserHttpRequestListener {
      *
      * Call this method to stop the interception of HTTP requests and return to the default browser behavior.
      */
-    static stop(): void {
-        if (this.isBlocked) return
+    static stop(): boolean {
+        const isBlocked = BrowserHttpRequestListener.blockers.length
+        if (isBlocked) return false
+
         window.fetch = BrowserHttpRequestListener.originalFetch
         XMLHttpRequest.prototype.open = BrowserHttpRequestListener.originalXHR
+
+        return true
     }
 
     /**

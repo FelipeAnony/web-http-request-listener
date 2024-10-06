@@ -4,7 +4,7 @@ import jsonDb from './db.json'
 
 const jsonServerApiEndpoint = 'http://localhost:3000/posts'
 
-describe('browser-http-request-listener', () => {
+describe('BrowserHttpRequestListener', () => {
     afterAll(() => {
         BrowserHttpRequestListener.stop()
         BrowserHttpRequestListener.clearSubscribers()
@@ -34,7 +34,91 @@ describe('browser-http-request-listener', () => {
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
-        BrowserHttpRequestListener.stop()
+        const stoped = BrowserHttpRequestListener.stop()
+        expect(stoped).toBe(true)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('Should blocks the listening state appropiately and prevent stops if there is any blocker', async () => {
+        const callback = jest.fn()
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.beforeSendHttpRequest(callback)
+        BrowserHttpRequestListener.onHttpResponseArrives(callback)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).toHaveBeenCalled()
+
+        callback.mockClear()
+        const unblock = BrowserHttpRequestListener.blockListeningState()
+        const stoped = BrowserHttpRequestListener.stop()
+        expect(stoped).toBe(false)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).toHaveBeenCalled()
+
+        // cleanup
+        unblock()
+    })
+
+    it('Should unblocks the listening state appropiately when the unblocker is called', async () => {
+        const callback = jest.fn()
+        const unblock = BrowserHttpRequestListener.blockListeningState()
+
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.beforeSendHttpRequest(callback)
+        BrowserHttpRequestListener.onHttpResponseArrives(callback)
+
+        const stoped = BrowserHttpRequestListener.stop()
+        expect(stoped).toBe(false)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).toHaveBeenCalled()
+
+        callback.mockClear()
+
+        unblock()
+        const stoped2 = BrowserHttpRequestListener.stop()
+        expect(stoped2).toBe(true)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('Should blocks the listening state appropiately and prevent clear all subscribers if there is any blocker', async () => {
+        const callback = jest.fn()
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.beforeSendHttpRequest(callback)
+        BrowserHttpRequestListener.onHttpResponseArrives(callback)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).toHaveBeenCalled()
+
+        callback.mockClear()
+        const unblock = BrowserHttpRequestListener.blockListeningState()
+        const cleaned = BrowserHttpRequestListener.clearSubscribers()
+        expect(cleaned).toBe(false)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).toHaveBeenCalled()
+
+        // cleanup
+        unblock()
+    })
+
+    it('Should clean all the subscribers at once when clearSubscribers is called and there is no blocker', async () => {
+        const callback = jest.fn()
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.beforeSendHttpRequest(callback)
+        BrowserHttpRequestListener.onHttpResponseArrives(callback)
+
+        await fetch(jsonServerApiEndpoint)
+        expect(callback).toHaveBeenCalled()
+
+        callback.mockClear()
+        const cleaned = BrowserHttpRequestListener.clearSubscribers()
+        expect(cleaned).toBe(true)
 
         await fetch(jsonServerApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
@@ -174,5 +258,35 @@ describe('browser-http-request-listener', () => {
             Authorization: 'any-auth',
         })
         expect(request.url).toBe(jsonServerApiEndpoint)
+    })
+
+    it('Should calls the subscribed callback one time for each request', async () => {
+        const beforeCallback = jest.fn()
+        const afterCallback = jest.fn()
+
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.beforeSendHttpRequest(beforeCallback)
+        BrowserHttpRequestListener.onHttpResponseArrives(afterCallback)
+
+        const times = 12
+        await Promise.all(
+            new Array(times).fill('').map(() => fetch(jsonServerApiEndpoint))
+        )
+
+        expect(beforeCallback).toHaveBeenCalledTimes(times)
+        expect(afterCallback).toHaveBeenCalledTimes(times)
+    })
+
+    it('Should returns the response to original fetch consumer even if the callbacks throws', async () => {
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.beforeSendHttpRequest(() => {
+            throw new Error()
+        })
+        BrowserHttpRequestListener.onHttpResponseArrives(() => {
+            throw new Error()
+        })
+
+        const response = await fetch(jsonServerApiEndpoint)
+        expect(await response.json()).toEqual(jsonDb.posts)
     })
 })
