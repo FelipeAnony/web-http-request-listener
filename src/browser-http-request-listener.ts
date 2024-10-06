@@ -281,7 +281,12 @@ export class BrowserHttpRequestListener {
      * This method will remove all subscribers for both before-send and response-arrival events.
      */
     static clearSubscribers() {
-        BrowserHttpRequestListener.beforeSendCallbacks.length = 0
-        BrowserHttpRequestListener.onResponseArriveCallbacks.length = 0
+        const isBlocked = BrowserHttpRequestListener.blockers.length
+        if (isBlocked) return false
+
+        BrowserHttpRequestListener.beforeSendCallbacks = []
+        BrowserHttpRequestListener.onResponseArriveCallbacks = []
+
+        return true
     }
 }
