@@ -1,6 +1,6 @@
 import { BrowserHttpRequestListener } from '@/browser-http-request-listener'
 import { RequestModel, RequestResponseModel, ResponseModel } from '@/models'
-import jsonDb from './db.json'
+import jsonDb from '@/tests/json-server/db.json'
 
 const jsonServerApiEndpoint = 'http://localhost:3000/posts'
 
