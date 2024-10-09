@@ -4,8 +4,8 @@ import jsonDb from '@/tests/json-server/db.json'
 
 const jsonServerApiEndpoint = 'http://localhost:3000/posts'
 
-describe('BrowserHttpRequestListener', () => {
-    afterAll(() => {
+describe('BrowserHttpRequestListener tests for fetch calls', () => {
+    beforeEach(() => {
         BrowserHttpRequestListener.stop()
         BrowserHttpRequestListener.clearSubscribers()
     })
