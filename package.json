@@ -1,9 +1,12 @@
 {
     "name": "browser-http-request-listener",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A lightweight and efficient HTTP request interceptor for the browser, designed for scenarios where Service Workers are not an option.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "files": [
+        "dist/"
+    ],
     "scripts": {
         "build": "tsc --project tsconfig.build.json",
         "lint:fix": "eslint --fix",
