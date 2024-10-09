@@ -9,8 +9,8 @@
         "lint:fix": "eslint --fix",
         "format": "prettier --write",
         "prepare": "husky",
-        "test": "concurrently \"npx json-server src/tests/db.json\" \"jest --passWithNoTests --no-cache --runInBand\"",
-        "test:watch": "concurrently \"npx json-server src/tests/db.json\" \"jest --passWithNoTests --no-cache --runInBand --watch -o\""
+        "test": "concurrently \"npx json-server src/tests/json-server/db.json\" \"jest --passWithNoTests --no-cache --runInBand\"",
+        "test:watch": "concurrently \"npx json-server src/tests/json-server/db.json\" \"jest --passWithNoTests --no-cache --runInBand --watch -o\""
     },
     "keywords": [
         "HTTP interceptor",
