@@ -134,38 +134,47 @@ export class BrowserHttpRequestListener {
             this: typeof XMLHttpRequest.prototype,
             method: string,
             url: string | URL,
-            async?: boolean,
+            async: boolean = true,
             username?: string | null,
             password?: string | null
         ) {
-            const request: RequestModel = {
+            BrowserHttpRequestListener.safeRunBeforeSendCallbacks({
                 method,
                 url: String(url),
-                xhrInstance: this,
-            }
-
-            BrowserHttpRequestListener.safeRunBeforeSendCallbacks(request)
+            })
 
             this.addEventListener('load', function () {
-                BrowserHttpRequestListener.safeRunOnArrivesCallbacks(request, {
-                    response: this.response,
-                    statusCode: this.status,
-                    statusText: this.statusText,
-                })
+                BrowserHttpRequestListener.safeRunOnArrivesCallbacks(
+                    {
+                        method,
+                        url: String(url),
+                    },
+                    {
+                        response: this.response,
+                        statusCode: this.status,
+                        statusText: this.statusText,
+                    }
+                )
             })
 
             this.addEventListener('error', function () {
-                BrowserHttpRequestListener.safeRunOnArrivesCallbacks(request, {
-                    response: this.response,
-                    statusCode: this.status,
-                    statusText: this.statusText,
-                })
+                BrowserHttpRequestListener.safeRunOnArrivesCallbacks(
+                    {
+                        method,
+                        url: String(url),
+                    },
+                    {
+                        response: this.response,
+                        statusCode: this.status,
+                        statusText: this.statusText,
+                    }
+                )
             })
 
             return BrowserHttpRequestListener.originalXHR.apply(this, [
                 method,
                 url,
-                Boolean(async),
+                async,
                 username,
                 password,
             ])
@@ -229,7 +238,7 @@ export class BrowserHttpRequestListener {
      * Registers a callback that is triggered before an HTTP request is sent.
      *
      * The callback receives the request model, allowing modifications to the request
-     * such as changing headers, URL, or method before the request is sent.
+     * such as changing headers, URL, or method before the request is sent (Only for fetch calls).
      *
      * @param {SubscriberCallback<RequestModel, Partial<RequestModel> | void>} callback -
      *        Function to be called before the request is sent. Can return modifications to the request.

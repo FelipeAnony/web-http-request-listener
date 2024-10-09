@@ -3,7 +3,6 @@ export interface RequestModel {
     method: string
     body?: BodyInit | null
     headers?: HeadersInit
-    xhrInstance?: typeof XMLHttpRequest.prototype
 }
 
 export interface ResponseModel {
