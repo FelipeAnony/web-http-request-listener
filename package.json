@@ -1,6 +1,6 @@
 {
     "name": "browser-http-request-listener",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A lightweight and efficient HTTP request interceptor for the browser, designed for scenarios where Service Workers are not an option.",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
