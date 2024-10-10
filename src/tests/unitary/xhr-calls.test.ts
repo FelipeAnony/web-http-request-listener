@@ -1,8 +1,12 @@
 import { BrowserHttpRequestListener } from '@/browser-http-request-listener'
 import { RequestModel, RequestResponseModel, ResponseModel } from '@/models'
 import jsonDb from '@/tests/json-server/db.json'
+import { waitFor } from '../utils'
 
-const jsonServerApiEndpoint = 'http://localhost:3000/posts'
+const jsonServerPostsApiEndpoint = 'http://localhost:3000/posts'
+const jsonServerStringResponseApiEndpoint = 'http://localhost:3000/string'
+const jsonServerNullResponseApiEndpoint = 'http://localhost:3000/null'
+const jsonServerNumberResponseApiEndpoint = 'http://localhost:3000/number'
 
 const doPromiseBasedXHRCall = (
     method: string,
@@ -36,11 +40,12 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
 
         BrowserHttpRequestListener.start()
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
 
         expect(callback).toHaveBeenCalledTimes(2)
     })
@@ -51,14 +56,17 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
         BrowserHttpRequestListener.start()
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
         const stoped = BrowserHttpRequestListener.stop()
         expect(stoped).toBe(true)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
+
         expect(callback).not.toHaveBeenCalled()
     })
 
@@ -68,7 +76,7 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
@@ -76,7 +84,7 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         const stoped = BrowserHttpRequestListener.stop()
         expect(stoped).toBe(false)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         // cleanup
@@ -94,7 +102,8 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         const stoped = BrowserHttpRequestListener.stop()
         expect(stoped).toBe(false)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
@@ -103,7 +112,7 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         const stoped2 = BrowserHttpRequestListener.stop()
         expect(stoped2).toBe(true)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
     })
 
@@ -113,7 +122,7 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
@@ -121,7 +130,7 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         const cleaned = BrowserHttpRequestListener.clearSubscribers()
         expect(cleaned).toBe(false)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         // cleanup
@@ -134,14 +143,14 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
         const cleaned = BrowserHttpRequestListener.clearSubscribers()
         expect(cleaned).toBe(true)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
     })
 
@@ -155,14 +164,14 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         const unsubscribe =
             BrowserHttpRequestListener.beforeSendHttpRequest(callback2)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
 
         expect(callback).toHaveBeenCalledTimes(1)
         expect(callback2).toHaveBeenCalledTimes(1)
 
         unsubscribe()
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
 
         expect(callback).toHaveBeenCalledTimes(2)
         expect(callback2).toHaveBeenCalledTimes(1)
@@ -182,12 +191,12 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
             BrowserHttpRequestListener.beforeSendHttpRequest(cb)
         })
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
 
         callbacks.forEach((cb) => {
             expect(cb).toHaveBeenCalledWith({
                 method: 'get',
-                url: jsonServerApiEndpoint,
+                url: jsonServerPostsApiEndpoint,
             } as RequestModel)
         })
     })
@@ -202,9 +211,12 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         const unsubscribe =
             BrowserHttpRequestListener.onHttpResponseArrives(callback2)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
+
         unsubscribe()
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
 
         expect(callback).toHaveBeenCalledTimes(2)
         expect(callback2).toHaveBeenCalledTimes(1)
@@ -224,7 +236,8 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
             BrowserHttpRequestListener.onHttpResponseArrives(cb)
         })
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
 
         callbacks.forEach((cb) => {
             expect(cb).toHaveBeenCalled()
@@ -243,14 +256,43 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         BrowserHttpRequestListener.start()
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await doPromiseBasedXHRCall('get', jsonServerApiEndpoint)
+        await doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+        await waitFor(100)
 
         expect(response.responseParsed).toEqual(jsonDb.posts)
         expect(response.statusCode).toBe(200)
         expect(response.statusText).toBe('OK')
         expect(request.method).toBe('get')
-        expect(request.url).toBe(jsonServerApiEndpoint)
+        expect(request.url).toBe(jsonServerPostsApiEndpoint)
     })
+
+    it('Should parse the response appropiately for any kind of data', async () => {
+        let response = {} as ResponseModel
+
+        const callback = jest.fn((args: RequestResponseModel) => {
+            response = args.response
+        })
+
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.onHttpResponseArrives(callback)
+
+        await doPromiseBasedXHRCall('get', jsonServerStringResponseApiEndpoint)
+        await waitFor(100)
+
+        expect(response.responseParsed).toEqual(jsonDb.string)
+        response = {} as ResponseModel
+
+        await doPromiseBasedXHRCall('get', jsonServerNullResponseApiEndpoint)
+        await waitFor(100)
+
+        expect(response.responseParsed).toEqual('')
+        response = {} as ResponseModel
+
+        await doPromiseBasedXHRCall('get', jsonServerNumberResponseApiEndpoint)
+        await waitFor(100)
+
+        expect(response.responseParsed).toEqual(jsonDb.number)
+    }, 10000)
 
     it('Should calls the subscribed callback one time for each request', async () => {
         const beforeCallback = jest.fn()
@@ -264,7 +306,9 @@ describe('BrowserHttpRequestListener tests for XMLHttpRequests', () => {
         await Promise.all(
             new Array(times)
                 .fill('')
-                .map(() => doPromiseBasedXHRCall('get', jsonServerApiEndpoint))
+                .map(() =>
+                    doPromiseBasedXHRCall('get', jsonServerPostsApiEndpoint)
+                )
         )
 
         expect(beforeCallback).toHaveBeenCalledTimes(times)

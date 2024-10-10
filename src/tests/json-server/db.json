@@ -1,98 +1,35 @@
 {
-  "posts": [
-    {
-      "id": "1",
-      "title": "a title",
-      "views": 100
-    },
-    {
-      "id": "2",
-      "title": "another title",
-      "views": 200
-    },
-    {
-      "id": "d71b"
-    },
-    {
-      "id": "b8a5"
-    },
-    {
-      "id": "909d"
-    },
-    {
-      "id": "c302"
-    },
-    {
-      "id": "7204"
-    },
-    {
-      "id": "232a"
-    },
-    {
-      "id": "a426"
-    },
-    {
-      "id": "f41c"
-    },
-    {
-      "id": "c0f7"
-    },
-    {
-      "id": "4d70"
-    },
-    {
-      "id": "5ac4"
-    },
-    {
-      "id": "589b"
-    },
-    {
-      "id": "6cfb"
-    },
-    {
-      "id": "0ad7"
-    },
-    {
-      "id": "8787"
-    },
-    {
-      "id": "2169"
-    },
-    {
-      "id": "49ed"
-    },
-    {
-      "id": "af53"
-    },
-    {
-      "id": "99cd"
-    },
-    {
-      "id": "e256"
-    },
-    {
-      "id": "1295"
-    },
-    {
-      "id": "922f"
-    },
-    {
-      "id": "1a18"
+    "string": "any-string",
+    "null": null,
+    "number": 837286493,
+    "posts": [
+        {
+            "id": "1",
+            "title": "a title",
+            "views": 100
+        },
+        {
+            "id": "2",
+            "title": "another title",
+            "views": 200
+        },
+        {
+            "id": "d71b"
+        }
+    ],
+    "comments": [
+        {
+            "id": "1",
+            "text": "a comment about post 1",
+            "postId": "1"
+        },
+        {
+            "id": "2",
+            "text": "another comment about post 1",
+            "postId": "1"
+        }
+    ],
+    "profile": {
+        "name": "typicode"
     }
-  ],
-  "comments": [
-    {
-      "id": "1",
-      "text": "a comment about post 1",
-      "postId": "1"
-    },
-    {
-      "id": "2",
-      "text": "another comment about post 1",
-      "postId": "1"
-    }
-  ],
-  "profile": {
-    "name": "typicode"
-  }
 }

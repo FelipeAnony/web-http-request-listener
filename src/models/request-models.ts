@@ -18,7 +18,7 @@ export interface RequestResponseModel {
 }
 
 export interface XHRResponseModel {
-    response: XMLHttpRequest['response']
+    xhrInstance: XMLHttpRequest
     statusCode: number
     statusText: string
 }

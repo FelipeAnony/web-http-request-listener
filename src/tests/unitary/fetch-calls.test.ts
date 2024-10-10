@@ -2,7 +2,10 @@ import { BrowserHttpRequestListener } from '@/browser-http-request-listener'
 import { RequestModel, RequestResponseModel, ResponseModel } from '@/models'
 import jsonDb from '@/tests/json-server/db.json'
 
-const jsonServerApiEndpoint = 'http://localhost:3000/posts'
+const jsonServerPostsApiEndpoint = 'http://localhost:3000/posts'
+const jsonServerStringResponseApiEndpoint = 'http://localhost:3000/string'
+const jsonServerNullResponseApiEndpoint = 'http://localhost:3000/null'
+const jsonServerNumberResponseApiEndpoint = 'http://localhost:3000/number'
 
 describe('BrowserHttpRequestListener tests for fetch calls', () => {
     beforeEach(() => {
@@ -15,11 +18,11 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
 
         BrowserHttpRequestListener.start()
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
 
         expect(callback).toHaveBeenCalledTimes(2)
     })
@@ -30,14 +33,14 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
         BrowserHttpRequestListener.start()
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
         const stoped = BrowserHttpRequestListener.stop()
         expect(stoped).toBe(true)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
     })
 
@@ -47,7 +50,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
@@ -55,7 +58,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         const stoped = BrowserHttpRequestListener.stop()
         expect(stoped).toBe(false)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         // cleanup
@@ -73,7 +76,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         const stoped = BrowserHttpRequestListener.stop()
         expect(stoped).toBe(false)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
@@ -82,7 +85,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         const stoped2 = BrowserHttpRequestListener.stop()
         expect(stoped2).toBe(true)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
     })
 
@@ -92,7 +95,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
@@ -100,7 +103,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         const cleaned = BrowserHttpRequestListener.clearSubscribers()
         expect(cleaned).toBe(false)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         // cleanup
@@ -113,14 +116,14 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         BrowserHttpRequestListener.beforeSendHttpRequest(callback)
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).toHaveBeenCalled()
 
         callback.mockClear()
         const cleaned = BrowserHttpRequestListener.clearSubscribers()
         expect(cleaned).toBe(true)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         expect(callback).not.toHaveBeenCalled()
     })
 
@@ -134,14 +137,14 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         const unsubscribe =
             BrowserHttpRequestListener.beforeSendHttpRequest(callback2)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
 
         expect(callback).toHaveBeenCalledTimes(1)
         expect(callback2).toHaveBeenCalledTimes(1)
 
         unsubscribe()
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
 
         expect(callback).toHaveBeenCalledTimes(2)
         expect(callback2).toHaveBeenCalledTimes(1)
@@ -161,7 +164,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
             BrowserHttpRequestListener.beforeSendHttpRequest(cb)
         })
 
-        await fetch(jsonServerApiEndpoint, {
+        await fetch(jsonServerPostsApiEndpoint, {
             method: 'get',
             headers: {
                 Authorization: 'any-auth',
@@ -171,7 +174,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         callbacks.forEach((cb) => {
             expect(cb).toHaveBeenCalledWith({
                 method: 'get',
-                url: jsonServerApiEndpoint,
+                url: jsonServerPostsApiEndpoint,
                 body: undefined,
                 headers: {
                     Authorization: 'any-auth',
@@ -184,12 +187,12 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         BrowserHttpRequestListener.start()
         BrowserHttpRequestListener.beforeSendHttpRequest(() => {
             return {
-                url: jsonServerApiEndpoint,
+                url: jsonServerPostsApiEndpoint,
             }
         })
 
         const res = await fetch('any-url')
-        expect(res.url).toBe(jsonServerApiEndpoint)
+        expect(res.url).toBe(jsonServerPostsApiEndpoint)
     })
 
     it('Should unsubscribe the afterArrives callbacks appropiately', async () => {
@@ -202,9 +205,9 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         const unsubscribe =
             BrowserHttpRequestListener.onHttpResponseArrives(callback2)
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
         unsubscribe()
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
 
         expect(callback).toHaveBeenCalledTimes(2)
         expect(callback2).toHaveBeenCalledTimes(1)
@@ -224,7 +227,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
             BrowserHttpRequestListener.onHttpResponseArrives(cb)
         })
 
-        await fetch(jsonServerApiEndpoint)
+        await fetch(jsonServerPostsApiEndpoint)
 
         callbacks.forEach((cb) => {
             expect(cb).toHaveBeenCalled()
@@ -243,7 +246,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         BrowserHttpRequestListener.start()
         BrowserHttpRequestListener.onHttpResponseArrives(callback)
 
-        await fetch(jsonServerApiEndpoint, {
+        await fetch(jsonServerPostsApiEndpoint, {
             method: 'get',
             headers: {
                 Authorization: 'any-auth',
@@ -257,8 +260,30 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
         expect(request.headers).toEqual({
             Authorization: 'any-auth',
         })
-        expect(request.url).toBe(jsonServerApiEndpoint)
+        expect(request.url).toBe(jsonServerPostsApiEndpoint)
     })
+
+    it('Should parse the response appropiately for any kind of data', async () => {
+        let response = {} as ResponseModel
+
+        const callback = jest.fn((args: RequestResponseModel) => {
+            response = args.response
+        })
+
+        BrowserHttpRequestListener.start()
+        BrowserHttpRequestListener.onHttpResponseArrives(callback)
+
+        await fetch(jsonServerStringResponseApiEndpoint)
+        expect(response.responseParsed).toEqual(jsonDb.string)
+        response = {} as ResponseModel
+
+        await fetch(jsonServerNullResponseApiEndpoint)
+        expect(response.responseParsed).toEqual('')
+        response = {} as ResponseModel
+
+        await fetch(jsonServerNumberResponseApiEndpoint)
+        expect(response.responseParsed).toEqual(jsonDb.number)
+    }, 10000)
 
     it('Should calls the subscribed callback one time for each request', async () => {
         const beforeCallback = jest.fn()
@@ -270,7 +295,9 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
 
         const times = 12
         await Promise.all(
-            new Array(times).fill('').map(() => fetch(jsonServerApiEndpoint))
+            new Array(times)
+                .fill('')
+                .map(() => fetch(jsonServerPostsApiEndpoint))
         )
 
         expect(beforeCallback).toHaveBeenCalledTimes(times)
@@ -286,7 +313,7 @@ describe('BrowserHttpRequestListener tests for fetch calls', () => {
             throw new Error()
         })
 
-        const response = await fetch(jsonServerApiEndpoint)
+        const response = await fetch(jsonServerPostsApiEndpoint)
         expect(await response.json()).toEqual(jsonDb.posts)
     })
 })

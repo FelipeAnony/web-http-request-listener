@@ -18,6 +18,50 @@ export class BrowserHttpRequestListener {
     private static originalFetch = window.fetch
     private static originalXHR = XMLHttpRequest.prototype.open
 
+    private static async safeParseResponse(
+        response: Response | XHRResponseModel
+    ) {
+        const isFetch = isFetchResponse(response)
+
+        try {
+            if (isFetch) {
+                const resClone = response.clone()
+                const responseType = response.headers.get('content-type') || ''
+
+                if (responseType.includes('json')) {
+                    return await resClone.json()
+                }
+                return await resClone.text()
+            }
+
+            const { xhrInstance } = response
+            const xhrResponseType = xhrInstance.responseType
+            const contentHeader = xhrInstance.getResponseHeader('content-type')
+
+            if (xhrResponseType === 'json' || contentHeader?.includes('json')) {
+                return JSON.parse(xhrInstance.response)
+            }
+            if (!xhrResponseType || xhrResponseType === 'text') {
+                return xhrInstance.responseText
+            }
+
+            return String(xhrInstance.response)
+        } catch (error) {
+            if (isFetch) {
+                try {
+                    return await response.text()
+                } catch {
+                    return String(error)
+                }
+            }
+
+            return String(
+                response.xhrInstance.response ||
+                    response.xhrInstance.responseText
+            )
+        }
+    }
+
     private static safeRunBeforeSendCallbacks = (request: RequestModel) => {
         try {
             BrowserHttpRequestListener.beforeSendCallbacks.forEach((cb) => {
@@ -27,8 +71,8 @@ export class BrowserHttpRequestListener {
                     Object.assign(request, newRequestData)
                 }
             })
-        } catch (error) {
-            console.error('Error during beforeSend callbacks:', error)
+        } catch (e) {
+            console.log(e)
         }
     }
 
@@ -37,9 +81,8 @@ export class BrowserHttpRequestListener {
         response: Response | XHRResponseModel
     ) => {
         try {
-            const responseParsed = isFetchResponse(response)
-                ? await response.json()
-                : JSON.parse(response.response)
+            const responseParsed =
+                await BrowserHttpRequestListener.safeParseResponse(response)
 
             BrowserHttpRequestListener.onResponseArriveCallbacks.forEach(
                 (cb) => {
@@ -53,7 +96,7 @@ export class BrowserHttpRequestListener {
                                   responseParsed,
                               }
                             : {
-                                  rawResponse: response.response,
+                                  rawResponse: response.xhrInstance.response,
                                   statusCode: response.statusCode,
                                   statusText: response.statusText,
                                   responseParsed,
@@ -61,27 +104,37 @@ export class BrowserHttpRequestListener {
                     })
                 }
             )
-        } catch (error) {
-            console.error('Error during onResponse callbacks:', error)
+        } catch (e) {
+            console.log(e)
         }
     }
 
-    private static getFetchRequestObject = (
+    private static safeGetFetchRequestObject(
         fetchParams: GetFnParams<typeof window.fetch>
-    ): RequestModel => {
-        const url =
-            typeof fetchParams[0] === 'string' || fetchParams[0] instanceof URL
-                ? String(fetchParams[0])
-                : String(fetchParams[0]?.url)
+    ): RequestModel {
+        try {
+            const url =
+                typeof fetchParams[0] === 'string' ||
+                fetchParams[0] instanceof URL
+                    ? String(fetchParams[0])
+                    : String(fetchParams[0]?.url)
 
-        const request: RequestModel = {
-            url,
-            method: fetchParams[1]?.method || 'get',
-            headers: fetchParams[1]?.headers || {},
-            body: fetchParams[1]?.body,
+            const request: RequestModel = {
+                url,
+                method: fetchParams[1]?.method || 'get',
+                headers: fetchParams[1]?.headers || {},
+                body: fetchParams[1]?.body,
+            }
+
+            return request
+        } catch {
+            const request: RequestModel = {
+                url: 'unable-to-define',
+                method: 'unable-to-define',
+            }
+
+            return request
         }
-
-        return request
     }
 
     private static fetchDecorator: typeof window.fetch = async function (
@@ -89,7 +142,7 @@ export class BrowserHttpRequestListener {
         ...fetchArgs
     ) {
         const request =
-            BrowserHttpRequestListener.getFetchRequestObject(fetchArgs)
+            BrowserHttpRequestListener.safeGetFetchRequestObject(fetchArgs)
 
         BrowserHttpRequestListener.safeRunBeforeSendCallbacks(request)
 
@@ -99,7 +152,7 @@ export class BrowserHttpRequestListener {
             originalResponse =
                 await BrowserHttpRequestListener.originalFetch.apply(window, [
                     request.url,
-                    { ...(fetchArgs[1] || {}), ...request },
+                    fetchArgs[1] ? { ...fetchArgs[1], ...request } : undefined,
                 ])
         } catch (error) {
             const typedError = error as Error
@@ -143,28 +196,28 @@ export class BrowserHttpRequestListener {
                 url: String(url),
             })
 
-            this.addEventListener('load', function () {
+            this.addEventListener('load', () => {
                 BrowserHttpRequestListener.safeRunOnArrivesCallbacks(
                     {
                         method,
                         url: String(url),
                     },
                     {
-                        response: this.response,
+                        xhrInstance: this,
                         statusCode: this.status,
                         statusText: this.statusText,
                     }
                 )
             })
 
-            this.addEventListener('error', function () {
+            this.addEventListener('error', () => {
                 BrowserHttpRequestListener.safeRunOnArrivesCallbacks(
                     {
                         method,
                         url: String(url),
                     },
                     {
-                        response: this.response,
+                        xhrInstance: this,
                         statusCode: this.status,
                         statusText: this.statusText,
                     }
