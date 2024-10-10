@@ -1,6 +1,6 @@
 {
     "name": "browser-http-request-listener",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "A lightweight and efficient HTTP request interceptor for the browser, designed for scenarios where Service Workers are not an option.",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -48,5 +48,10 @@
         "tsup": "^8.3.0",
         "typescript": "^5.6.2",
         "typescript-eslint": "^8.8.0"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/index.js"
+        }
     }
 }
