@@ -76,3 +76,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+This software is and will always be completely free to use, even for commercial purposes. You don’t need to ask for any kind of permission to use it as you please. However, if you would like to support the project and contribute, donations in Bitcoin are accepted — any sats are welcome!
+
+**Bitcoin Donation Address:** `bc1qcwysvmd0cwjjpcagzyah2a20urzpq89wlldwqv`
